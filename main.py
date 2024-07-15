@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, redirect, url_for, send_from_directory, jsonify, render_template
+from flask import Flask, request, send_from_directory, jsonify, render_template
 from werkzeug.utils import secure_filename
 
 import xmltodict
@@ -10,13 +10,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
-#HKQuantityTypeIdentifierStepCount
-
 UPLOAD_FOLDER = 'static/files'
+TEMPLATE_FOLDER = 'templates'
 ALLOWED_EXTENSIONS = {'xml'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['TEMPLATE_FOLDER'] = TEMPLATE_FOLDER
 
 def allowed_file(filename):
   return '.' in filename and \
@@ -42,17 +42,9 @@ def upload_file():
       file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
       send_from_directory(app.config['UPLOAD_FOLDER'], filename)
       return jsonify('File uploaded successfully')
-  return '''
-  <!doctype html>
-  <title>Upload new File</title>
-  <h1>Upload new File</h1>
-  <form method=post enctype=multipart/form-data>
-    <input type=file name=file>
-    <input type=text name=text>
-    <input type=submit value=Upload>
-  </form>
-  '''
-
+  types = open("types.txt").readlines()
+  return render_template(os.path.join('upload.html'), types=types)
+  
 def parse_file(filename):
   with open(os.path.join(UPLOAD_FOLDER, filename)) as file:
     data_dict = xmltodict.parse(file.read())
@@ -64,12 +56,14 @@ def parse_file(filename):
   df['@startDate'] = pd.to_datetime(df['@startDate'])
   df['@endDate'] = pd.to_datetime(df['@endDate'])
 
+  df['@type'] = df['@type'].str.replace('HKQuantityTypeIdentifier', '')
+
+  print(df)
   return df
 
 @app.route('/analyze/<filename>/<data_type>', methods=['GET','POST'])
 def analyze(filename, data_type):
-  df = parse_file(filename)  
-
+  df = parse_file(filename)
   data_type_records = df[df['@type'] == data_type]
 
   if data_type_records.empty:

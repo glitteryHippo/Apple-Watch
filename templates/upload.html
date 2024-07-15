@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload new File</title>
+</head>
+<body>
+  <h1>Upload new File</h1>
+  <p>To export your data from the Health App:<br>1. Tap your picture or initials at the top right.<br>2. If you don’t see your picture or initials, tap Summary or Browse at the bottom of the screen, then scroll to the top of the screen.<br>3. Tap Export All Health Data, then choose a method for sharing your data.</p>
+  <form method=post enctype=multipart/form-data>
+    <input type=file name=file>
+    <select name=text>
+      <option value={{ types[0] }} selected>{{ types[0] }}</option>
+      {% for type in types[1:] %}
+      <option value={{ type }}>{{ type }}</option>
+      {% endfor %}
+    </select>
+    <input type=submit value=Upload>
+  </form>
+</body>
+</html>
