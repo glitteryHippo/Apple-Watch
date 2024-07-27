@@ -62,9 +62,6 @@ def parse_file(filename, data_type):
 
 def analyze(data_type_records):
 
-  if data_type_records.empty:
-    return jsonify('No records found for the specified data type'), 400
-
   values = data_type_records['@value'].astype(float)
 
   summary = {
@@ -116,7 +113,7 @@ def output(filename, data_type):
     else:
         flatList.append(element)
 
-  return render_template('graph.html',labels=data_type_records['@creationDate'].tolist(), values1=data_type_records['@value'].astype(float).tolist(), values2=flatList)
+  return render_template('graph.html', summary=analytics, labels=data_type_records['@creationDate'].tolist(), values1=data_type_records['@value'].astype(float).tolist(), values2=flatList)
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=5000)
